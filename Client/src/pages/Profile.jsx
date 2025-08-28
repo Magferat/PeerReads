@@ -1,0 +1,188 @@
+import { useEffect, useState } from "react";
+// import axios from "axios";
+import { useParams } from "react-router-dom";
+import api from "../lib/api";
+
+export default function Profile() {
+    const { id } = useParams();
+    const [user, setUser] = useState(null);
+    const [lendingBooks, setLendingBooks] = useState([]);
+    const [borrowingBooks, setBorrowingBooks] = useState([]);
+    const [editMode, setEditMode] = useState(false);
+    const [formData, setFormData] = useState({ username: "", email: "", location: "" });
+
+    useEffect(() => {
+        async function fetchProfile() {
+            try {
+                let url = "";
+                if (!id || id === "me") {
+                    url = "/users/me";          // ✅ remove `/api` because baseURL already has it
+                } else {
+                    url = `/users/profile/${id}`;
+                }
+
+                const { data } = await api.get(url);  // ✅ use api
+                const fetchedUser = data.user;
+
+                setUser(fetchedUser);
+                setLendingBooks(data.lendingBooks || []);
+                setBorrowingBooks(data.borrowingBooks || []);
+                setFormData({
+                    username: fetchedUser.name || "",
+                    email: fetchedUser.email || "",
+                    address: fetchedUser.location.address || "",
+                    coords: fetchedUser.location.coords || "",
+
+                });
+
+            } catch (err) {
+                console.error("Failed to fetch profile:", err);
+            }
+        }
+        fetchProfile();
+    }, [id]);
+
+
+    const handleUpdate = async () => {
+        try {
+            console.log(formData)
+
+            const { data } = await api.put("/users/me", {
+                name: formData.username,
+                email: formData.email,
+                address: formData.address,
+                coords: formData.coords,
+            });
+            setUser(data.user);
+
+            setEditMode(false); // back to view mode
+        } catch (err) {
+            console.error("Update failed:", err);
+        }
+    };
+
+
+    const getLiveLocation = () => {
+        // console.log("clickedddd")
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+
+                try {
+                    // Convert lat/lng to human-readable address
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+                    );
+                    // console.log("here")
+
+                    const data = await res.json();
+                    console.log(data.address)
+                    const newLocation = {
+                        address: data.display_name, // readable address
+                        coords: { lat, lng },
+                    };
+                    setFormData({ ...formData, address: newLocation.address, coords: newLocation.coords });
+                } catch (err) {
+                    console.error("Failed to fetch address:", err);
+                    setFormData({ ...formData, location: { coords: { lat, lng } } });
+                }
+            });
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    };
+
+
+
+    if (!user) return <div className="container mt-4">Loading...</div>;
+
+    const isMe = user?._id;
+
+    // console.log(isMe, user._id)
+
+    return (
+        <div className="container mt-4">
+            {/* <h2>{isMe ? "My Profile" : `${user.username}'s Profile`}</h2> */}
+
+
+            <h2>{isMe ? "My Profile" : `${user.name}'s Profile`}</h2>
+
+            {isMe && editMode ? (
+                <>
+                    <input
+                        type="text"
+                        className="form-control mb-2"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    />
+                    <input
+                        type="email"
+                        // placeholder=""
+                        className="form-control mb-2"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                    <div className="input-group mb-2">
+                        <input
+                            type="text"
+                            className="form-control"
+                            // placeholder="Enter your Address"
+                            value={formData.address}
+                            readOnly
+                        />
+                        <button className="btn btn-secondary" onClick={getLiveLocation}>
+                            Get Live Location
+                        </button>
+                    </div>
+                    <button className="btn btn-primary me-2" onClick={handleUpdate}>
+                        Save
+                    </button>
+                    <button className="btn btn-warning" onClick={() => setEditMode(false)}>
+                        Cancel
+                    </button>
+                </>
+            ) : (
+                <>
+                    <p>
+                        <strong>Name:</strong> {user.name}
+                    </p>
+                    <p>
+                        <strong>Email:</strong> {user.email}
+                    </p>
+                    <p><strong>Location:</strong> {user.location?.address || "Not set"}</p>
+
+                    {isMe && (
+                        <button className="btn btn-primary" onClick={() => setEditMode(true)}>
+                            Edit Profile
+                        </button>
+                    )}
+                </>
+            )}
+
+
+            <div className="card p-3 my-3">
+                <h4>Lending Books</h4>
+                <ul className="list-group">
+                    {lendingBooks.map((b) => (
+                        <li key={b._id} className="list-group-item">
+                            {b.title} by {b.author}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            <div className="card p-3 my-3">
+                <h4>Borrowing Books</h4>
+                <ul className="list-group">
+                    {borrowingBooks.map((b) => (
+                        <li key={b._id} className="list-group-item">
+                            {b.title} by {b.author}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+    );
+}
