@@ -21,7 +21,7 @@ app.use('/api/books', require('./routes/bookRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));
 app.use('/api/loans', require('./routes/loanRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
-app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 app.use("/uploads", express.static(path.join(__dirname, "..", "..", "uploads")));
 

@@ -1,12 +1,16 @@
-const Notification = require('../models/Notification');
+const Notification = require("../models/Notification");
 
-exports.mine = async (req, res) => {
-    const list = await Notification.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(100);
-    res.json(list);
+exports.getMyNotifications = async (req, res) => {
+    const notifs = await Notification.find({ user: req.user._id })
+        .sort({ createdAt: -1 })
+        .lean();
+    res.json(notifs);
 };
 
-exports.markRead = async (req, res) => {
-    const { id } = req.params;
-    const n = await Notification.findOneAndUpdate({ _id: id, user: req.user._id }, { read: true }, { new: true });
-    res.json(n);
+exports.markAsRead = async (req, res) => {
+    const notif = await Notification.findOne({ _id: req.params.id, user: req.user._id });
+    if (!notif) return res.status(404).json({ message: "Not found" });
+    notif.read = true;
+    await notif.save();
+    res.json({ success: true });
 };

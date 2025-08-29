@@ -1,5 +1,10 @@
 import { Container, Navbar, Nav } from 'react-bootstrap';
 import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+
+// import api from "../lib/api";
+import api from './lib/api.js';
+
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Books from './pages/Books.jsx';
@@ -7,15 +12,25 @@ import UploadBook from './pages/UploadBook.jsx';
 import MyLoans from './pages/MyLoans.jsx';
 import Profile from "./pages/Profile.jsx";
 import Dashboard from './pages/Dashboard.jsx';
+import Notification from './pages/Notifications.jsx';
 
 const isAuthed = () => !!localStorage.getItem('token');
 
 const Private = ({ children }) => isAuthed() ? children : <Navigate to="/login" />;
 
 export default function App() {
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    api.get("/notifications").then((res) => {
+      setUnread(res.data.filter((n) => !n.read).length);
+    });
+  }, []);
+
+
   return (
     <>
       <Navbar bg="light" className="mb-3">
+
         <Container>
           <Navbar.Brand as={Link} to="/">Cycle_Read</Navbar.Brand>
           <Nav className="me-auto">
@@ -32,8 +47,17 @@ export default function App() {
           </Nav>
           <Nav>
             {isAuthed()
-              ? <Nav.Link onClick={() => { localStorage.removeItem('token'); location.href = '/'; }}>Logout</Nav.Link>
+              ? <><Nav.Link onClick={() => { localStorage.removeItem('token'); location.href = '/'; }}>Logout</Nav.Link>
+                <Nav.Link href="/notifications">
+                  <img
+                    src="/src/assets/bell.png"
+                    alt="Notifications"
+                    style={{ width: '24px', height: '24px' }}
+                  />{unread > 0 && <span className="badge bg-danger">{unread}</span>}
+                </Nav.Link>
+              </>
               : <>
+
                 <Nav.Link as={Link} to="/login">Login</Nav.Link>
                 <Nav.Link as={Link} to="/register">Register</Nav.Link>
               </>
@@ -51,6 +75,9 @@ export default function App() {
           <Route path="/loans" element={<Private><MyLoans /></Private>} />
           <Route path="/profile" element={<Private><Profile /></Private>} />
           <Route path="/dashboard" element={<Private><Dashboard /></Private>} />
+          <Route path="/notifications" element={<Private><Notification /></Private>} />
+
+
           {/* <Route path="/profile/:id" element={<Private><Profile /></Private>} /> */}
 
         </Routes>

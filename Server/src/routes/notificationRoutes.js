@@ -1,9 +1,8 @@
-const router = require('express').Router();
-const { protect } = require('../middleware/auth');
-const { mine, markRead } = require('../controllers/notificationController');
+const router = require("express").Router();
+const { protect } = require("../middleware/auth");
+const { getMyNotifications, markAsRead } = require("../controllers/notificationController");
 
-router.use(protect);
-router.get('/my', mine);
-router.patch('/:id/read', markRead);
+router.get("/", protect, getMyNotifications);
+router.post("/:id/read", protect, markAsRead);
 
 module.exports = router;
