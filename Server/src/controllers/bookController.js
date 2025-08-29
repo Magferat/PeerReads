@@ -57,7 +57,6 @@ exports.remove = async (req, res) => {
 // };
 // controllers/bookController.js
 exports.list = async (req, res) => {
-    console.log("hereeeeeeeeeeeeee ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅", req.user)
     const { q, g } = req.query;
 
     const where = {

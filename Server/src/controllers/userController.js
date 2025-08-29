@@ -94,3 +94,13 @@ exports.activity = async (req, res) => {
     const lent = await Loan.find({ lender: req.user._id }).populate('book');
     res.json({ borrowed, lent });
 };
+
+// userController.js
+exports.recharge = async (req, res) => {
+    const { amount } = req.body;
+    if (amount <= 0) return res.status(400).json({ message: "Invalid amount" });
+    const user = await User.findById(req.user._id);
+    user.balance += Number(amount);
+    await user.save();
+    res.json({ message: "Recharged", balance: user.balance });
+};

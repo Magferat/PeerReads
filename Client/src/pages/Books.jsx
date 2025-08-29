@@ -110,7 +110,8 @@ export default function Books() {
                                         <Card.Text>
                                             <strong>Author:</strong> {b.author} <br />
                                             <strong>Genres:</strong> {b.genre.join(", ")} <br />
-                                            <strong>Fee:</strong> ${b.lendingFee}
+                                            <strong>Fee:</strong> {b.lendingFee} BDT<br />
+                                            <strong>Owner:</strong> {b.owner.name}
                                         </Card.Text>
                                     </div>
 
