@@ -62,7 +62,7 @@ export default function Books() {
             <Row xs={1} md={2} lg={3} className="g-3">
                 {books.map(b => (
                     <Col key={b._id}>
-                        <Card className="p-3 h-100">
+                        {/* <Card className="p-3 h-100">
                             <h5>{b.title}</h5>
                             <div className="text-muted">{b.author} • {b.genre?.join(", ") || '—'}</div>
                             <div className="mt-2">Original: ${b.originalPrice}</div>
@@ -87,6 +87,55 @@ export default function Books() {
                                     Log in to borrow
                                 </Button>
                             )}
+                        </Card> */}
+                        <Card className="mb-3" style={{ maxWidth: '600px' }}>
+                            <div className="d-flex justify-content-center align-items-center">
+                                {/* Image on the left */}
+                                {b.coverImage && (
+                                    <Card.Img
+                                        src={`${import.meta.env.VITE_API_BASE_URL}${b.coverImage}`}
+                                        style={{
+                                            height: '200px',
+                                            width: '40%',
+                                            objectFit: 'cover',
+                                            borderRadius: '8px 0 0 8px'
+                                        }}
+                                    />
+                                )}
+
+                                {/* Info + Buttons on the right */}
+                                <Card.Body className="d-flex flex-column justify-content-between" style={{ width: '60%' }}>
+                                    <div>
+                                        <Card.Title>{b.title}</Card.Title>
+                                        <Card.Text>
+                                            <strong>Author:</strong> {b.author} <br />
+                                            <strong>Genres:</strong> {b.genre.join(", ")} <br />
+                                            <strong>Fee:</strong> ${b.lendingFee}
+                                        </Card.Text>
+                                    </div>
+
+                                    <div>
+                                        {authed ? (
+                                            <Button
+                                                className="mt-3"
+                                                onClick={() => requestBorrow(b._id)}
+                                                disabled={myRequests.includes(b._id)}
+                                            >
+                                                {myRequests.includes(b._id) ? "Already Requested" : "Request to Borrow"}
+                                            </Button>
+                                        ) : (
+
+                                            <Button
+                                                className="mt-3"
+                                                variant="secondary"
+                                                onClick={() => navigate('/login')}
+                                            >
+                                                Log in to borrow
+                                            </Button>
+                                        )}
+                                    </div>
+                                </Card.Body>
+                            </div>
                         </Card>
                     </Col>
                 ))}
