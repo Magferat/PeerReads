@@ -45,15 +45,50 @@ exports.remove = async (req, res) => {
     res.json({ message: "Book deleted" });
 };
 
-exports.list = async (req, res) => {
+// exports.list = async (req, res) => {
 
-    const { q, genre } = req.query;
-    const where = { status: 'Available' };
-    if (genre) where.genre = genre;
-    if (q) where.$text = { $search: q };
-    const books = await Book.find(where).populate('owner', 'name');
+//     const { q, genre } = req.query;
+//     const where = { status: 'Available' };
+//     if (genre) where.genre = genre;
+//     if (q) where.$text = { $search: q };
+//     const books = await Book.find(where).populate('owner', 'name');
+
+//     res.json(books);
+// };
+// controllers/bookController.js
+exports.list = async (req, res) => {
+    console.log("hereeeeeeeeeeeeee ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅", req.user)
+    const { q, g } = req.query;
+
+    const where = {
+        status: 'Available'
+    };
+
+    if (req.user) {
+        where.owner = { $ne: req.user._id };
+    }
+
+    // Genre filter
+    if (g) {
+        const genres = g.split(",");
+        where.genre = { $in: genres };
+    }
+
+    // Search by title or author
+    if (q) {
+        where.$or = [
+            { title: { $regex: q, $options: "i" } },
+            { author: { $regex: q, $options: "i" } }
+        ];
+    }
+
+    const books = await Book.find(where)
+        .populate('owner', 'name')
+        .lean();
+
     res.json(books);
 };
+
 
 exports.mineLent = async (req, res) => {
     const lendBooks = await Book.find({ owner: req.user._id });

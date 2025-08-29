@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { protect } = require('../middleware/auth');
+const { protect, optionalAuth } = require('../middleware/auth');
 const upload = require("../middleware/upload");
 
 const { create, list, mineLent, update, remove } = require("../controllers/bookController");
@@ -8,7 +8,7 @@ const { create, list, mineLent, update, remove } = require("../controllers/bookC
 router.post("/", protect, upload.single("coverImage"), create);
 router.put("/:id", protect, upload.single("coverImage"), update);
 router.delete("/:id", protect, remove);
-router.get("/", list); // ?q=titleOrAuthor&genre=Fiction
+router.get("/", optionalAuth, list); // ?q=titleOrAuthor&genre=Fiction
 router.get("/mine", protect, mineLent);
 module.exports = router;
 // ======
