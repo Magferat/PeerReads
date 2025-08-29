@@ -3,41 +3,129 @@ const Book = require('../models/Book');
 const User = require('../models/User');
 const Loan = require('../models/Loan');
 const Notification = require('../models/Notification');
+const haversineDistance = require("../utils/distance");
+const axios = require("axios");
 const { deliveryEstimate, calcPlatformFee } = require('../utils/fees');
+
+
+// exports.getIncoming = async (req, res) => {
+//     const requests = await BorrowRequest.find({ lender: req.user._id })
+//         .populate("book")
+//         .populate("borrower", "name location")
+//         .lean();
+
+//     // Add distance if borrower has coords
+//     requests.forEach((r) => {
+//         if (
+//             r.borrower?.location?.coordinates &&
+//             req.user?.location?.coordinates
+//         ) {
+//             const { lat: lat1, lng: lon1 } = req.user.location.coordinates;
+//             const { lat: lat2, lng: lon2 } = r.borrower.location.coordinates;
+//             r.distance = haversineDistance(lat1, lon1, lat2, lon2).toFixed(1);
+//         }
+//     });
+
+//     res.json(requests);
+// };
+
+
 
 
 exports.createRequest = async (req, res) => {
     const { bookId, message } = req.body;
-    const book = await Book.findById(bookId);
-    if (!book || book.status !== 'Available')
-        return res.status(400).json({ message: 'Book not available' });
+    const book = await Book.findById(bookId).populate("owner");
+    if (!book || book.status !== "Available")
+        return res.status(400).json({ message: "Book not available" });
 
-    if (String(book.owner) === String(req.user._id))
-        return res.status(400).json({ message: 'Cannot request your own book' });
+    if (String(book.owner._id) === String(req.user._id))
+        return res.status(400).json({ message: "Cannot request your own book" });
 
     // Prevent duplicate request
     const exists = await BorrowRequest.findOne({
         book: book._id,
         borrower: req.user._id,
-        status: { $in: ['Pending', 'Approved'] }
+        status: { $in: ["Pending", "Approved"] }
     });
-    if (exists) return res.status(400).json({ message: 'Already requested this book' });
+    if (exists) return res.status(400).json({ message: "Already requested this book" });
+
+    // borrower & lender
+    const borrower = await User.findById(req.user._id);
+    const lender = await User.findById(book.owner._id);
+
+    let distanceText = null, durationText = null;
+
+    if (borrower.location?.coords && lender.location?.coords) {
+        try {
+            const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+            const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${borrower.location.coords.lat},${borrower.location.coords.lng}&destinations=${lender.location.coords.lat},${lender.location.coords.lng}&key=${apiKey}`;
+
+            const { data } = await axios.get(url);
+            const element = data.rows[0].elements[0];
+            if (element.status === "OK") {
+                distanceText = element.distance.text; // e.g. "5.4 km"
+                durationText = element.duration.text; // e.g. "12 mins"
+            }
+            // console.log(distance);
+        } catch (err) {
+            console.error("Distance fetch failed:", err.message);
+        }
+    }
 
     const br = await BorrowRequest.create({
         book: book._id,
-        lender: book.owner,
+        lender: book.owner._id,
         borrower: req.user._id,
+        originalPrice: book.originalPrice,
+        distance: distanceText,
+        duration: durationText,
         message
     });
 
     await Notification.create({
-        user: book.owner,
-        type: 'BorrowRequest',
+        user: book.owner._id,
+        type: "BorrowRequest",
         message: `New request for "${book.title}"`
     });
 
     res.json(br);
 };
+
+// exports.createRequest = async (req, res) => {
+//     const { bookId, message } = req.body;
+//     const book = await Book.findById(bookId);
+//     if (!book || book.status !== 'Available')
+//         return res.status(400).json({ message: 'Book not available' });
+
+//     if (String(book.owner) === String(req.user._id))
+//         return res.status(400).json({ message: 'Cannot request your own book' });
+
+//     // Prevent duplicate request
+//     const exists = await BorrowRequest.findOne({
+//         book: book._id,
+//         borrower: req.user._id,
+//         status: { $in: ['Pending', 'Approved'] }
+//     });
+//     if (exists) return res.status(400).json({ message: 'Already requested this book' });
+
+//     const br = await BorrowRequest.create({
+//         book: book._id,
+//         lender: book.owner,
+//         borrower: req.user._id,
+//         originalPrice: book.originalPrice,
+//         message
+
+
+//     });
+
+//     await Notification.create({
+//         user: book.owner,
+//         type: 'BorrowRequest',
+//         message: `New request for "${book.title}"`
+//     });
+
+//     res.json(br);
+// };
 
 
 exports.lenderApprove = async (req, res) => {
@@ -45,6 +133,7 @@ exports.lenderApprove = async (req, res) => {
     const reqDoc = await BorrowRequest.findById(requestId).populate('book');
     if (!reqDoc || String(reqDoc.lender) !== String(req.user._id)) return res.status(403).json({ message: 'Not allowed' });
     if (reqDoc.status !== 'Pending') return res.status(400).json({ message: 'Already processed' });
+    // console.log(reqDoc);
 
     const borrower = await User.findById(reqDoc.borrower);
     const lender = await User.findById(reqDoc.lender);

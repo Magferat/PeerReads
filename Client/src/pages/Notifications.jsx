@@ -19,8 +19,11 @@ export default function Notifications() {
     };
 
     useEffect(() => {
-        load();
+        load(); // first load
+        const interval = setInterval(load, 30000); // refresh every 30s
+        return () => clearInterval(interval); // cleanup on unmount
     }, []);
+
 
     const markRead = async (id) => {
         await api.post(`/notifications/${id}/read`);

@@ -151,7 +151,7 @@ export default function Profile() {
                     <p>
                         <strong>Email:</strong> {user.email}
                     </p>
-                    <p><strong>Location:</strong> {user.location?.address || "Not set"}</p>
+                    <p><strong>Address:</strong> {user.location?.address || "Not set"}</p>
 
                     {isMe && (
                         <button className="btn btn-primary" onClick={() => setEditMode(true)}>

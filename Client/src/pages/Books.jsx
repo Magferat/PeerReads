@@ -32,13 +32,26 @@ export default function Books() {
 
     const requestBorrow = async (bookId) => {
         try {
-            await api.post('/requests', { bookId });
-            alert('Request sent!');
-            setMyRequests(prev => [...prev, bookId]);
+            // 1. fetch current user
+            const { data: me } = await api.get("/users/me");
+            // console.log(me.user.location);
+            // 2. check if address exists
+            if (!me.user.location?.address) {
+                if (window.confirm("You must set your address before borrowing. Go to profile?")) {
+                    navigate("/profile"); // redirect to profile page
+                }
+                return;
+            }
+
+            // 3. proceed with request
+            await api.post("/requests", { bookId });
+            alert("Request sent!");
+            setMyRequests((prev) => [...prev, bookId]);
         } catch (e) {
             alert(e.response?.data?.message || "Error sending request");
         }
     };
+
 
     return (
         <>
