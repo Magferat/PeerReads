@@ -25,7 +25,7 @@ exports.searchUsers = async (req, res) => {
 exports.userActivity = async (req, res) => {
     const { id } = req.params;
     const borrowed = await Loan.find({ borrower: id }).populate('book');
-    const lent = await Loan.find({ lender: id }).populate('book');
+    const lent = await Book.find({ owner: id });
     res.json({ borrowed, lent });
 };
 

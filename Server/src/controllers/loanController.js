@@ -240,5 +240,6 @@ exports.myLoans = async (req, res) => {
     console.log("my loan-------------------------")
     const borrowed = await Loan.find({ borrower: req.user._id }).populate('book');
     const lent = await Loan.find({ lender: req.user._id }).populate('book');
+    // console.log(borrowed)
     res.json({ borrowed, lent });
 };

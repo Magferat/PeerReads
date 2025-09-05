@@ -26,9 +26,9 @@ export default function Profile() {
 
                 setUser(fetchedUser);
                 setLendingBooks(data.lendingBooks || []);
-                setBorrowingBooks(data.borrowingBooks || []);
+                // setBorrowingBooks(data.borrowingBooks || []);
                 setFormData({
-                    username: fetchedUser.name || "",
+                    username: fetchedUser.username || "",
                     email: fetchedUser.email || "",
                     address: fetchedUser.location.address || "",
                     coords: fetchedUser.location.coords || "",
@@ -40,15 +40,39 @@ export default function Profile() {
             }
         }
         fetchProfile();
+        async function fetchLoans() {
+            try {
+                let url = "loans/mine";
+
+                const { data } = await api.get(url);
+                console.log(data, data.borrowed)
+                // setLendingBooks(data.lent || []);
+
+                setBorrowingBooks(data.borrowed || []);
+
+                // console.log(lendingBooks, borrowingBooks);
+
+
+            }
+            catch (err) {
+                console.error("Failed to fetch loans:", err);
+
+
+            }
+
+
+        }
+        fetchLoans();
     }, [id]);
+
 
 
     const handleUpdate = async () => {
         try {
-            console.log(formData)
+            // console.log(formData)
 
             const { data } = await api.put("/users/me", {
-                name: formData.username,
+                username: formData.username,
                 email: formData.email,
                 address: formData.address,
                 coords: formData.coords,
@@ -78,7 +102,7 @@ export default function Profile() {
                     // console.log("here")
 
                     const data = await res.json();
-                    console.log(data.address)
+                    // console.log(data.address)
                     const newLocation = {
                         address: data.display_name, // readable address
                         coords: { lat, lng },
@@ -114,8 +138,8 @@ export default function Profile() {
                     <input
                         type="text"
                         className="form-control mb-2"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        value={formData.username}
+                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     />
                     <input
                         type="email"
@@ -185,8 +209,8 @@ export default function Profile() {
                 <h4>Borrowing Books</h4>
                 <ul className="list-group">
                     {borrowingBooks.map((b) => (
-                        <li key={b._id} className="list-group-item">
-                            {b.title} by {b.author}
+                        <li key={b.book._id} className="list-group-item">
+                            <strong>{b.book.title}</strong> by {b.book.author}
                         </li>
                     ))}
                 </ul>
