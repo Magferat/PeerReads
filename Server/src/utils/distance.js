@@ -1,22 +1,22 @@
-const haversineDistance = require("../utils/distance");
+// src/utils/distance.js
+function haversineDistance(coords1, coords2) {
+    const toRad = (x) => (x * Math.PI) / 180;
 
-exports.getIncoming = async (req, res) => {
-    const requests = await BorrowRequest.find({ lender: req.user._id })
-        .populate("book")
-        .populate("borrower", "name location")
-        .lean();
+    const R = 6371; // Earth radius in km
+    const dLat = toRad(coords2.lat - coords1.lat);
+    const dLng = toRad(coords2.lng - coords1.lng);
 
-    // Add distance if borrower has coords
-    requests.forEach((r) => {
-        if (
-            r.borrower?.location?.coordinates &&
-            req.user?.location?.coordinates
-        ) {
-            const { lat: lat1, lng: lon1 } = req.user.location.coordinates;
-            const { lat: lat2, lng: lon2 } = r.borrower.location.coordinates;
-            r.distance = haversineDistance(lat1, lon1, lat2, lon2).toFixed(1);
-        }
-    });
+    const lat1 = toRad(coords1.lat);
+    const lat2 = toRad(coords2.lat);
 
-    res.json(requests);
-};
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1) * Math.cos(lat2) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // in km
+}
+
+module.exports = { haversineDistance };

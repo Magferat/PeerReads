@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 // import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import api from "../lib/api";
 
 export default function Profile() {
@@ -151,13 +151,21 @@ export default function Profile() {
                     <p>
                         <strong>Email:</strong> {user.email}
                     </p>
+                    <p>
+                        <strong>Credit:</strong> {user.balance}
+                    </p>
+                    {/* <p>
+                        <strong>Credit:</strong> {user.balance}
+                    </p> */}
                     <p><strong>Address:</strong> {user.location?.address || "Not set"}</p>
 
                     {isMe && (
                         <button className="btn btn-primary" onClick={() => setEditMode(true)}>
                             Edit Profile
                         </button>
+
                     )}
+                    <button > <Link to="/recharge">Recharge</Link></button>
                 </>
             )}
 

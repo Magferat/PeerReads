@@ -88,6 +88,12 @@ exports.list = async (req, res) => {
     res.json(books);
 };
 
+exports.getBook = async (req, res) => {
+    const { id } = req.params;
+    const book = await Book.find({ _id: id });
+    res.json(book)
+
+}
 
 exports.mineLent = async (req, res) => {
     const lendBooks = await Book.find({ owner: req.user._id });

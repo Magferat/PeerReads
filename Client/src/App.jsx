@@ -13,6 +13,7 @@ import MyLoans from './pages/MyLoans.jsx';
 import Profile from "./pages/Profile.jsx";
 import Dashboard from './pages/Dashboard.jsx';
 import Notification from './pages/Notifications.jsx';
+import Recharge from './pages/Recharge.jsx';
 
 const isAuthed = () => !!localStorage.getItem('token');
 
@@ -36,7 +37,7 @@ export default function App() {
           <Nav className="me-auto">
             {/* <Nav.Link as={Link} to="/">Books</Nav.Link> */}
             <Nav.Link as={Link} to="/upload">Lend a Book</Nav.Link>
-            <Nav.Link as={Link} to="/loans">My Loans</Nav.Link>
+            {/* <Nav.Link as={Link} to="/loans">My Loans</Nav.Link> */}
             <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
             <Nav.Link href="/dashboard">Dashboard</Nav.Link>
             <Nav.Link href="/recharge">Recharge</Nav.Link>
@@ -76,6 +77,7 @@ export default function App() {
           <Route path="/profile" element={<Private><Profile /></Private>} />
           <Route path="/dashboard" element={<Private><Dashboard /></Private>} />
           <Route path="/notifications" element={<Private><Notification /></Private>} />
+          <Route path="/recharge" element={<Private><Recharge /></Private>} />
 
 
           {/* <Route path="/profile/:id" element={<Private><Profile /></Private>} /> */}

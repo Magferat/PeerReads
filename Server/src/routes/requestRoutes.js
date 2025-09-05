@@ -18,12 +18,12 @@ const {
     cancelRequest,
     borrowerProceed,
     borrowerDecline
+
 } = require('../controllers/requestController');
 
 router.post('/', protect, createRequest);
 router.post('/approve', protect, lenderApprove);
 router.post('/reject', protect, lenderReject);
-// ===
 router.post("/cancel", protect, cancelRequest);
 router.post("/proceed", protect, borrowerProceed);
 router.post("/decline", protect, borrowerDecline);

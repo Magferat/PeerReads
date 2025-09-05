@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const DeliverySchema = new mongoose.Schema({
     pickupAt: Date,
-    status: { type: String, enum: ['Pre-Delivery', 'On Delivery', 'At Borrower'], default: 'Pre-Delivery' },
+    status: { type: String, enum: ['Pre-Delivery', 'On Delivery', 'At Borrower', "Return Scheduled", "Returned"], default: 'Pre-Delivery' },
     timeline: [{ status: String, at: { type: Date, default: Date.now } }]
 }, { _id: false });
 
@@ -18,7 +18,7 @@ const LoanSchema = new mongoose.Schema({
     receivedAt: Date,
     returnRequestedAt: Date,
     returnedAt: Date,
-    status: { type: String, enum: ['Active', 'Return Requested', 'Returned', 'Disputed', 'Closed'], default: 'Active' },
+    status: { type: String, enum: ['Available', 'Return Requested', 'Returned', 'Disputed', "Closed"], default: 'Available' },
     createdAt: { type: Date, default: Date.now }
 });
 

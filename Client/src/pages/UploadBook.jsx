@@ -209,7 +209,7 @@ export default function MyLibrary() {
                                         </Button>
                                     </Card.Body>
                                 </Card> */}
-                                <Card className="mb-3" style={{ maxWidth: '600px' }}>
+                                <Card className="mb-3" style={{ maxWidth: '800px' }}>
                                     <div className="d-flex justify-content-center align-items-center">
                                         {/* Image on the left */}
                                         {b.coverImage && (
@@ -231,7 +231,9 @@ export default function MyLibrary() {
                                                 <Card.Text>
                                                     <strong>Author:</strong> {b.author} <br />
                                                     <strong>Genres:</strong> {b.genre.join(", ")} <br />
-                                                    <strong>Fee:</strong> ${b.lendingFee}
+                                                    <strong>Fee:</strong> BDT {b.lendingFee} <br />
+                                                    <strong>Original Price:</strong> BDT {b.originalPrice} <br />
+                                                    <strong>Status:</strong> {b.status} <br />
                                                 </Card.Text>
                                             </div>
 

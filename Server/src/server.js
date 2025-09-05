@@ -14,6 +14,7 @@ app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
@@ -40,4 +41,5 @@ app.use((err, req, res, next) => {
     await connectDB();
     const port = process.env.PORT || 5000;
     app.listen(port, () => console.log(`API running on :${port}`));
+
 })();
