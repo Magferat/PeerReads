@@ -15,6 +15,16 @@ exports.bootstrapAdmin = async (req, res) => {
     }
     res.json({ message: 'Admin ready', user: { id: user._id, email: user.email, role: user.role } });
 };
+exports.makeAdmin = async (req, res) => {
+    const { userId } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.role = "admin";
+    await user.save();
+
+    res.json({ message: `${user.email} is now an admin`, user: { id: user._id, email: user.email, role: user.role } });
+};
 
 exports.searchUsers = async (req, res) => {
     const { email } = req.query;
@@ -41,6 +51,22 @@ exports.deleteUser = async (req, res) => {
     await User.findByIdAndDelete(id);
     // (In production you would also clean up related docs or soft-delete)
     res.json({ message: 'User deleted' });
+};
+
+// Get all damage reports (with borrower, lender, book info)
+exports.getDamageReports = async (req, res) => {
+    try {
+        const reports = await DamageReport.find()
+            .populate('loan')
+            .populate('borrower', 'name email')
+            .populate('lender', 'name email')
+            .populate('book', 'title status');
+
+        res.json(reports);
+    } catch (err) {
+        console.error("Error fetching damage reports:", err);
+        res.status(500).json({ message: "Failed to fetch damage reports" });
+    }
 };
 
 exports.resolveDamage = async (req, res) => {
