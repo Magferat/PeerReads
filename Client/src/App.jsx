@@ -17,6 +17,8 @@ import AdminDashboard from './admin/AdminDashboard.jsx';
 import AdminBooks from './admin/AdminBooks.jsx';
 import AdminUsers from './admin/AdminUsers.jsx';
 import DamageReports from './admin/DamageReports.jsx';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const isAuthed = () => !!localStorage.getItem('token');
 const Private = ({ children }) => (isAuthed() ? children : <Navigate to="/login" />);
@@ -56,7 +58,7 @@ export default function App() {
   if (loading) {
     return (
       <Navbar bg="light" className="mb-3">
-        <Container><Navbar.Brand>Cycle_Read</Navbar.Brand></Container>
+        <Container><Navbar.Brand>Read Cycle</Navbar.Brand></Container>
       </Navbar>
     );
   }
@@ -70,9 +72,13 @@ export default function App() {
       <>
         <Navbar bg="light" className="mb-3">
           <Container>
-            <Navbar.Brand as={Link} to="/admin">Cycle_Read — Admin</Navbar.Brand>
+            <Navbar.Brand as={Link}> <img
+              src="/src/assets/logo.png"
+              alt="Notifications"
+              style={{ width: 24, height: 24 }}
+            /> <strong className='p-3'> Read Cycle — Admin </strong></Navbar.Brand>
             <Nav className="me-auto">
-              <Nav.Link as={Link} to="/admin">Dashboard</Nav.Link>
+              {/* <Nav.Link as={Link} to="/admin">Dashboard</Nav.Link> */}
               <Nav.Link as={Link} to="/admin/books">Manage Books</Nav.Link>
               <Nav.Link as={Link} to="/admin/users">Manage Users</Nav.Link>
               <Nav.Link as={Link} to="/admin/reports">Damage Reports</Nav.Link>
@@ -107,6 +113,7 @@ export default function App() {
             <Route path="/recharge" element={<Navigate to="/admin" replace />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
+          <ToastContainer position="top-right" autoClose={3000} />
         </Container>
       </>
     );
@@ -119,7 +126,14 @@ export default function App() {
     <>
       <Navbar bg="light" className="mb-3">
         <Container>
-          <Navbar.Brand as={Link} to="/">Cycle_Read</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">
+            <img
+              src="/src/assets/logo.png"
+              alt="Notifications"
+              style={{ width: 24, height: 24 }}
+            />
+            <strong className='p-3'> Read Cycle</strong>
+          </Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/upload">Lend a Book</Nav.Link>
             <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
@@ -166,6 +180,7 @@ export default function App() {
           <Route path="/admin/*" element={<Navigate to="/" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <ToastContainer position="top-right" autoClose={3000} />
       </Container>
     </>
   );

@@ -28,6 +28,9 @@ exports.markOnDelivery = async (req, res) => {
     loan.delivery.status = "On Delivery";
     loan.delivery.timeline.push({ status: "On Delivery" });
     await loan.save();
+    const book = await Book.findById(loan.book._id);
+    book.status = "On Delivery";
+    book.save();
 
     await Notification.create({
         user: loan.borrower._id,
@@ -61,6 +64,9 @@ exports.markReceived = async (req, res) => {
     loan.delivery.status = "At Borrower";
     loan.delivery.timeline.push({ status: "At Borrower" });
     await loan.save();
+    const book = await Book.findById(loan.book._id);
+    book.status = "At Borrower";
+    book.save();
 
     await Notification.create({
         user: loan.lender._id,
@@ -93,6 +99,10 @@ exports.lenderRequestReturn = async (req, res) => {
 
     loan.delivery.timeline.push({ status: "Return Requested" });
     await loan.save();
+    const book = await Book.findById(loan.book._id);
+    book.status = "Return Requested";
+    book.save();
+
 
     await Notification.create({ user: loan.borrower._id, type: "Return", message: `Lender requested return of "${loan.book.title}".` });
     res.json({ message: "Return requested" });
@@ -109,6 +119,11 @@ exports.borrowerScheduleReturn = async (req, res) => {
 
     loan.delivery.timeline.push({ status: `Return Scheduled: ${returnAt}` });
     await loan.save();
+
+    const book = await Book.findById(loan.book._id);
+    book.status = "Return Scheduled";
+    book.save();
+
 
     await Notification.create({ user: loan.lender._id, type: "Return", message: `Borrower scheduled return for "${loan.book.title}"` });
     res.json({ message: "Return scheduled" });
@@ -167,6 +182,8 @@ exports.lenderConfirmOk = async (req, res) => {
     loan.delivery.timeline.push({ status: "Returned" });
     await loan.save();
 
+
+
     // ✅ Update book status properly
     const book = await Book.findById(loan.book._id);
     book.status = "Available";
@@ -197,25 +214,111 @@ exports.lenderConfirmOk = async (req, res) => {
 //     res.json({ message: "Dispute created, awaiting admin review" });
 // };
 
-exports.lenderReportDamage = async (req, res) => {
-    const { loanId } = req.body;
-    const loan = await Loan.findById(loanId).populate("book borrower lender");
-    if (!loan || String(loan.lender._id) !== String(req.user._id))
-        return res.status(403).json({ message: "Not allowed" });
+// exports.lenderReportDamage = async (req, res) => {
+//     console.log("here comes rain again............................---------------------------")
+//     const { loanId } = req.body;
+//     const loan = await Loan.findById(loanId).populate("book borrower lender");
+//     if (!loan || String(loan.lender._id) !== String(req.user._id))
+//         return res.status(403).json({ message: "Not allowed" });
 
+//     loan.status = "Disputed";
+//     loan.delivery.timeline.push({ status: "Disputed" });
+//     await loan.save();
+
+//     // ✅ Update book status properly
+//     const book = await Book.findById(loan.book._id);
+//     book.status = "Disputed";
+//     await book.save();
+
+//     await Notification.create({ user: loan.borrower._id, type: "Dispute", message: `Lender reported damage for "${loan.book.title}".` });
+//     await Notification.create({ user: "admin", type: "Dispute", message: `Dispute raised for "${loan.book.title}". Please review.` });
+
+//     res.json({ message: "Dispute created, book marked as disputed" });
+// };
+
+// exports.lenderReportDamage = async (req, res) => {
+//     console.log("here comes rain again............................---------------------------");
+//     const { loanId } = req.body;
+//     const loan = await Loan.findById(loanId).populate("book borrower lender");
+//     if (!loan || String(loan.lender._id) !== String(req.user._id))
+//         return res.status(403).json({ message: "Not allowed" });
+
+//     loan.status = "Disputed";
+//     loan.delivery.timeline.push({ status: "Disputed" });
+//     await loan.save();
+
+//     // ✅ Update book status properly
+//     const book = await Book.findById(loan.book._id);
+//     book.status = "Disputed";
+//     await book.save();
+
+//     // notify borrower
+//     await Notification.create({
+//         user: loan.borrower._id,
+//         type: "Dispute",
+//         message: `Lender reported damage for "${loan.book.title}".`,
+//     });
+
+//     // notify an admin (first one found)
+//     const adminUser = await User.findOne({ role: "admin" });
+//     if (adminUser) {
+//         await Notification.create({
+//             user: adminUser._id,
+//             type: "Dispute",
+//             message: `Dispute raised for "${loan.book.title}". Please review.`,
+//         });
+//     }
+
+//     res.json({ message: "Dispute created, book marked as disputed" });
+// };
+
+
+exports.lenderReportDamage = async (req, res) => {
+    console.log("here comes rain again............................---------------------------");
+    const { loanId, description, claimedAmount } = req.body;
+
+    const loan = await Loan.findById(loanId).populate("book borrower lender");
+    if (!loan || String(loan.lender._id) !== String(req.user._id)) {
+        return res.status(403).json({ message: "Not allowed" });
+    }
+
+    // mark loan + book as disputed
     loan.status = "Disputed";
     loan.delivery.timeline.push({ status: "Disputed" });
     await loan.save();
 
-    // ✅ Update book status properly
     const book = await Book.findById(loan.book._id);
     book.status = "Disputed";
     await book.save();
 
-    await Notification.create({ user: loan.borrower._id, type: "Dispute", message: `Lender reported damage for "${loan.book.title}".` });
-    await Notification.create({ user: "admin", type: "Dispute", message: `Dispute raised for "${loan.book.title}". Please review.` });
+    // ✅ create DamageReport entry
+    const report = await DamageReport.create({
+        loan: loan._id,
+        book: book._id,
+        lender: loan.lender._id,
+        borrower: loan.borrower._id,
+        description: description || "Damage reported by lender",
+        claimedAmount: claimedAmount || 0,
+    });
 
-    res.json({ message: "Dispute created, book marked as disputed" });
+    // notify borrower
+    await Notification.create({
+        user: loan.borrower._id,
+        type: "Dispute",
+        message: `Lender reported damage for "${loan.book.title}".`,
+    });
+
+    // notify all admins
+    const admins = await User.find({ role: "admin" });
+    for (const admin of admins) {
+        await Notification.create({
+            user: admin._id,
+            type: "Dispute",
+            message: `Dispute raised for "${loan.book.title}". Please review.`,
+        });
+    }
+
+    res.json({ message: "Dispute created, book marked as disputed", report });
 };
 
 

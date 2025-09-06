@@ -42,7 +42,7 @@ const BookSchema = new mongoose.Schema({
     genre: [{ type: String, index: true }], // ✅ multiple genres
     originalPrice: { type: Number, required: true, min: 0 },
     lendingFee: { type: Number, required: true },
-    status: { type: String, enum: ['Available', 'Pre-Delivery', 'On Delivery', 'At Borrower', 'Returned', 'Disputed'], default: 'Available' },
+    status: { type: String, enum: ['Available', 'Pre-Delivery', 'On Delivery', 'At Borrower', 'Returned', "Return Scheduled", 'Disputed'], default: 'Available' },
     createdAt: { type: Date, default: Date.now },
     borrowers: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

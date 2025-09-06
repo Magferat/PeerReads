@@ -84,7 +84,7 @@ exports.lenderApprove = async (req, res) => {
     await Notification.create({
         user: reqDoc.borrower,
         type: "Approved",
-        message: `Your request for "${reqDoc.book.title}" was approved. Pickup scheduled.`
+        message: `Your request for "${reqDoc.book.title}" was approved. Pickup scheduled.Please Proceed or Decline`
     });
 
 
@@ -98,6 +98,7 @@ exports.borrowerProceed = async (req, res) => {
     const reqDoc = await BorrowRequest.findById(requestId).populate('book');
     if (!reqDoc || String(reqDoc.borrower) !== String(req.user._id))
         return res.status(403).json({ message: "Not allowed" });
+
 
     if (reqDoc.status !== "Approved")
         return res.status(400).json({ message: "Not yet approved by lender" });
@@ -133,7 +134,11 @@ exports.borrowerProceed = async (req, res) => {
             status: "Pre-Delivery",
             timeline: [{ status: "Pre-Delivery" }]
         }
+
     });
+    const book_f = await Book.findById(book._id);
+    book_f.status = "Pre-Delivery";
+    book.save();
 
     // Notify lender
     await Notification.create({

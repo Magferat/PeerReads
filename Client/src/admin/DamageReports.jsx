@@ -10,6 +10,7 @@ export default function DamageReports() {
         // Assume you have an endpoint `/damage/reports` that lists all
         const res = await api.get("/admin/damage");
         setReports(res.data);
+        console.log(reports);
     };
 
     const resolve = async (id) => {

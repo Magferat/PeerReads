@@ -189,7 +189,7 @@ export default function Profile() {
                         </button>
 
                     )}
-                    <button > <Link to="/recharge">Recharge</Link></button>
+                    {/* <button > <Link to="/recharge">Recharge</Link></button> */}
                 </>
             )}
 
@@ -199,7 +199,8 @@ export default function Profile() {
                 <ul className="list-group">
                     {lendingBooks.map((b) => (
                         <li key={b._id} className="list-group-item">
-                            {b.title} by {b.author}
+                            <strong> {b.title} </strong> by {b.author}
+                            <strong className="ps-3">Status : </strong>{b.status}
                         </li>
                     ))}
                 </ul>

@@ -38,6 +38,31 @@ exports.userActivity = async (req, res) => {
     const lent = await Book.find({ owner: id });
     res.json({ borrowed, lent });
 };
+// Get all books
+exports.getAllBooks = async (req, res) => {
+    try {
+        const books = await Book.find()
+            .populate("owner", "name email")
+            .sort({ createdAt: -1 });
+
+        res.json(books);
+    } catch (err) {
+        console.error("Error fetching books:", err);
+        res.status(500).json({ message: "Failed to fetch books" });
+    }
+};
+// Get one book by ID
+exports.getBookById = async (req, res) => {
+    try {
+        const { bookId } = req.params;
+        const book = await Book.findById(bookId).populate("owner", "name email");
+        if (!book) return res.status(404).json({ message: "Book not found" });
+        res.json(book);
+    } catch (err) {
+        console.error("Error fetching book:", err);
+        res.status(500).json({ message: "Failed to fetch book" });
+    }
+};
 
 exports.updateBookStatus = async (req, res) => {
     const { bookId } = req.params;
@@ -55,14 +80,16 @@ exports.deleteUser = async (req, res) => {
 
 // Get all damage reports (with borrower, lender, book info)
 exports.getDamageReports = async (req, res) => {
+    // console.log(res)
     try {
         const reports = await DamageReport.find()
-            .populate('loan')
-            .populate('borrower', 'name email')
-            .populate('lender', 'name email')
-            .populate('book', 'title status');
+        // .populate('loan')
+        // .populate('borrower', 'name email')
+        // .populate('lender', 'name email')
+        // .populate('book', 'title status');
 
         res.json(reports);
+        console.log(reports, "heeeeeeeeeeeeeeeee")
     } catch (err) {
         console.error("Error fetching damage reports:", err);
         res.status(500).json({ message: "Failed to fetch damage reports" });
