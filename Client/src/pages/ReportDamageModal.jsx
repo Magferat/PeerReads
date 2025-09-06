@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import api from "../lib/api";
 import { toast } from "react-toastify"; // if using react-toastify
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 
 export default function ReportDamageModal({ show, onHide, loanId, onReported }) {
     const [description, setDescription] = useState("");

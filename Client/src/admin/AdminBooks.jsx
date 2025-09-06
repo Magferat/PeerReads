@@ -221,7 +221,10 @@ export default function AdminBooks() {
                             <td>{b.title}</td>
                             <td>{b.author || "N/A"}</td>
                             <td>{b.status}</td>
-                            <td>{b.owner?.name}</td>
+                            <td>{b.owner?.name}
+                                <br />
+                                {b.owner.email}
+                            </td>
                             <td>{b._id}</td>
                             <td>
                                 <Form.Select
@@ -237,6 +240,7 @@ export default function AdminBooks() {
                                     <option>At Borrower</option>
                                     <option>Returned</option>
                                     <option>Disputed</option>
+                                    <option>Lost</option>
                                 </Form.Select>
                                 <Button
                                     size="sm"

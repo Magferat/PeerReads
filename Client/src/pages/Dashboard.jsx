@@ -342,6 +342,7 @@ import { Tabs, Tab, Card, Button, Spinner } from "react-bootstrap";
 import api from "../lib/api";
 import ApproveModal from "./ApproveModal";
 import MyLoans from "./MyLoans";
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
     const [incoming, setIncoming] = useState([]);
@@ -412,20 +413,23 @@ export default function Dashboard() {
 
     const reject = async (id) => {
         await api.post("/requests/reject", { requestId: id });
-        alert("Rejected!");
+        // alert("Rejected!");
+        toast.success("Request Rejected!")
         load();
     };
 
     const cancel = async (id) => {
         await api.post("/requests/cancel", { requestId: id });
-        alert("Cancelled!");
+        // alert("!");
+        toast.warn("Request Canceled")
         load();
     };
 
     const proceed = async (id) => {
         try {
             await api.post("/requests/proceed", { requestId: id });
-            alert("Proceed successful! Deposit held.");
+            // alert("Proceed successful! Deposit held.");
+            toast.success("Proceed successful! Deposit held.")
             load();
         } catch (err) {
             if (err.response?.data?.message === "Insufficient balance. Please recharge.") {
@@ -440,7 +444,8 @@ export default function Dashboard() {
 
     const decline = async (id) => {
         await api.post("/requests/decline", { requestId: id });
-        alert("Declined!");
+        // alert("Declined!");
+        toast.warn("Declined!")
         load();
     };
 

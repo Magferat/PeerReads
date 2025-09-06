@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Row, Col, Card, Form, Button, InputGroup } from 'react-bootstrap';
 import api from '../lib/api';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const allGenres = [
     "Fiction", "Sci-Fi", "Fantasy", "Adventure", "Mystery", "Crime", "Detective",
-    "Romance", "Thriller", "Horror", "Non-Fiction", "Novel", "History", "Religious",
+    "Romance", "Thriller", "Horror", "Non-Fiction", "Biography", "Novel", "History", "Religious",
     "Philosophy", "Self-help", "Poetry", "Science", "Spirituality", "Autobiography", "Satire"
 ];
 
@@ -45,7 +46,8 @@ export default function Books() {
 
             // 3. proceed with request
             await api.post("/requests", { bookId });
-            alert("Request sent!");
+            // alert("Request sent!");
+            toast.success("Request sent!")
             setMyRequests((prev) => [...prev, bookId]);
         } catch (e) {
             alert(e.response?.data?.message || "Error sending request");

@@ -4,16 +4,15 @@ import api from "../lib/api";
 
 export default function DamageReports() {
     const [reports, setReports] = useState([]);
-    const [deduction, setDeduction] = useState(0);
+    const [deductions, setDeductions] = useState({}); // per-row state
 
     const load = async () => {
-        // Assume you have an endpoint `/damage/reports` that lists all
         const res = await api.get("/admin/damage");
         setReports(res.data);
-        console.log(reports);
     };
 
     const resolve = async (id) => {
+        const deduction = deductions[id] || 0;
         await api.post(`/admin/damage/${id}/resolve`, { deduction });
         load();
     };
@@ -26,10 +25,11 @@ export default function DamageReports() {
             <Table striped bordered>
                 <thead>
                     <tr>
-                        <th>Book</th>
+                        <th>Book-ID</th>
                         <th>Borrower</th>
                         <th>Lender</th>
-                        <th>Status</th>
+                        <th>Discription</th>
+                        <th>Deposit</th>
                         <th>Deduction</th>
                         <th>Actions</th>
                     </tr>
@@ -37,15 +37,27 @@ export default function DamageReports() {
                 <tbody>
                     {reports.map((r) => (
                         <tr key={r._id}>
-                            <td>{r.loan?.book?.title}</td>
+                            {/* {console.log(r)} */}
+                            <td>{r.book?.title}
+                                <br />
+                                {r.book._id}
+
+                            </td>
                             <td>{r.borrower?.email}</td>
                             <td>{r.lender?.email}</td>
-                            <td>{r.status}</td>
+                            <td>{r.description}</td>
+                            <td>{r.loan.depositHold}</td>
+
                             <td>
                                 <Form.Control
                                     type="number"
-                                    value={deduction}
-                                    onChange={(e) => setDeduction(e.target.value)}
+                                    value={deductions[r._id] || ""}
+                                    onChange={(e) =>
+                                        setDeductions((prev) => ({
+                                            ...prev,
+                                            [r._id]: e.target.value,
+                                        }))
+                                    }
                                 />
                             </td>
                             <td>

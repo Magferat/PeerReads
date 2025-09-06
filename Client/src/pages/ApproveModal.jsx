@@ -3,6 +3,8 @@ import { Modal, Button, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import api from "../lib/api";
+import { toast } from "react-toastify";
+
 export default function ApproveModal({
     show,
     onHide,
@@ -25,7 +27,9 @@ export default function ApproveModal({
 
             onApproved?.();
             onHide();
-            alert(successMsg);
+            // alert(successMsg);
+            toast.success(successMsg);
+
         } catch (err) {
             alert("Action failed");
             console.error(err);

@@ -176,6 +176,9 @@ export default function Profile() {
                         <strong>Email:</strong> {user.email}
                     </p>
                     <p>
+                        <strong>Role:</strong> {user.role}
+                    </p>
+                    <p>
                         <strong>Credit:</strong> {user.balance}
                     </p>
                     {/* <p>

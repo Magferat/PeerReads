@@ -39,6 +39,7 @@
 import { useState, useEffect } from "react";
 import { Card, Form, Button } from "react-bootstrap";
 import api from "../lib/api";
+import { toast } from "react-toastify";
 
 export default function MyLibrary() {
     const [books, setBooks] = useState([]);
@@ -81,12 +82,14 @@ export default function MyLibrary() {
             await api.put(`/books/${editingId}`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            alert("Book updated!");
+            // alert("Book updated!");
+            toast.success("Book updated!")
         } else {
             await api.post("/books", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            alert("Book listed!");
+            // alert("Book listed!");
+            toast.success("Book listed!")
         }
 
         resetForm();

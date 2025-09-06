@@ -19,6 +19,7 @@ import AdminUsers from './admin/AdminUsers.jsx';
 import DamageReports from './admin/DamageReports.jsx';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import UserActivity from './admin/UserActivity.jsx';
 
 const isAuthed = () => !!localStorage.getItem('token');
 const Private = ({ children }) => (isAuthed() ? children : <Navigate to="/login" />);
@@ -104,6 +105,8 @@ export default function App() {
             <Route path="/admin/books" element={<AdminBooks />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/reports" element={<DamageReports />} />
+            <Route path="/admin/users/:id/activity" element={<UserActivity />} />
+
             <Route path="/notifications" element={<Private><Notification /></Private>} />
             {/* Block user routes for admins by redirecting */}
             <Route path="/upload" element={<Navigate to="/admin" replace />} />
